@@ -5,7 +5,7 @@ import httpx
 
 # --- Settings ---
 # API का URL यहाँ डालें
-API_URL = "http://192.0.0.4:5030/token" 
+API_URL = "https://star-jwt-gen.lovable.app/api/public/token" 
 # कितनी बार दोबारा कोशिश करनी है
 MAX_RETRIES = 2 
 # हर दोबारा कोशिश के बीच कितना इंतज़ार करना है (सेकंड में)
