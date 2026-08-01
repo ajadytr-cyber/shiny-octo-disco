@@ -1,1 +1,4 @@
-# shiny-octo-disco
+# STAR-LIKE-SRC
+# STAR LIKE API SRC  
+# POWERED BY : @STAR_GMR
+# CHANNEL : @STAR_METHODE
