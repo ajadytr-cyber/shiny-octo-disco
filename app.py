@@ -15,7 +15,7 @@ import random
 import time
 
 # Configuration
-TOKEN_BATCH_SIZE = 220
+TOKEN_BATCH_SIZE = 99999
 RETRY_ATTEMPTS = 1  # Number of retry attempts for failed requests
 PROFILE_RETRY_ATTEMPTS = 1  # Increased retry attempts for profile check
 PROFILE_RETRY_DELAY = 0.1  # Increased delay to 0.5 seconds
