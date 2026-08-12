@@ -7,7 +7,7 @@ import httpx
 # API का URL यहाँ डालें
 API_URL = "https://star-jwt-api1.lovable.app/api/public/token" 
 # कितनी बार दोबारा कोशिश करनी है
-MAX_RETRIES = 2 
+MAX_RETRIES = 3 
 # हर दोबारा कोशिश के बीच कितना इंतज़ार करना है (सेकंड में)
 RETRY_DELAY = 1 
 
@@ -61,7 +61,7 @@ async def process_account_with_retry(client, account, index):
 
 async def main():
     """मुख्य फ़ंक्शन जो पूरी प्रक्रिया को चलाता है."""
-    input_file = "accounts_visit.json"
+    input_file = "accounts.json"
     try:
         with open(input_file) as f:
             accounts = json.load(f)
