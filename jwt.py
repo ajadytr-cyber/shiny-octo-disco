@@ -5,19 +5,18 @@ import httpx
 
 # --- Settings ---
 # API का URL यहाँ डालें
-API_URL = "https://star-jwt-gen.lovable.app/api/public/token" 
+API_URL = "https://star-jwt-api1.lovable.app/api/public/token" 
 # कितनी बार दोबारा कोशिश करनी है
 MAX_RETRIES = 2 
 # हर दोबारा कोशिश के बीच कितना इंतज़ार करना है (सेकंड में)
-RETRY_DELAY = 0 
+RETRY_DELAY = 0
 
 # --- Token Generation Logic ---
 
-async def generate_single_token(client, access_token: str):
+async def generate_single_token(client, uid: str, password: str):
     """API से एक टोकन जेनरेट करता है."""
     try:
-        # SIRF access_token parameter bhejo
-        url = f"{API_URL}?access_token={access_token}"
+        url = f"{API_URL}?uid={uid}&password={password}"
         resp = await client.get(url, timeout=180)
         
         # अगर रिक्वेस्ट सफल रही तो JSON डेटा वापस भेजें
@@ -27,25 +26,17 @@ async def generate_single_token(client, access_token: str):
         return None
     except Exception as e:
         # किसी भी तरह की त्रुटि होने पर प्रिंट करें
-        print(f"Access Token के लिए त्रुटि: {e}")
+        print(f"UID {uid} के लिए त्रुटि: {e}")
         return None
 
 async def process_account_with_retry(client, account, index):
     """एक अकाउंट को दोबारा कोशिश करने वाले लॉजिक के साथ प्रोसेस करता है."""
-    # access_token लें
-    access_token = account.get('access_token')
-    
-    if not access_token:
-        print(f"⚠️ UID #{index + 1} - access_token नहीं मिला")
-        return {
-            "status": "failed",
-            "account": account,
-            "index": index
-        }
+    uid = account['uid']
+    password = account['password']
     
     # MAX_RETRIES में दी गई संख्या तक कोशिश करें
     for attempt in range(MAX_RETRIES):
-        token_data = await generate_single_token(client, access_token)
+        token_data = await generate_single_token(client, uid, password)
         
         # अगर टोकन मिल गया, तो डेटा लौटा दें
         if token_data and "token" in token_data:
@@ -58,7 +49,7 @@ async def process_account_with_retry(client, account, index):
         
         # अगर यह आखिरी कोशिश नहीं है, तो इंतज़ार करें और फिर से कोशिश करें
         if attempt < MAX_RETRIES - 1:
-            print(f"Access Token #{index + 1} - फ़ेल हुआ। {RETRY_DELAY} सेकंड बाद फिर से कोशिश की जाएगी...")
+            print(f"UID #{index + 1} {uid} - फ़ेल हुआ। {RETRY_DELAY} सेकंड बाद फिर से कोशिश की जाएगी...")
             await asyncio.sleep(RETRY_DELAY)
             
     # सभी कोशिशें फ़ेल होने पर फ़ेलियर का मैसेज लौटा दें
@@ -110,19 +101,15 @@ async def main():
                 else:
                     region = 'BD'
                 
-                # UID account se lein
-                uid = account.get('uid') or account.get('Uid') or account.get('account_uid', 'N/A')
-                
                 result[region].append({
-                    'uid': uid,
+                    'uid': account['uid'],
                     'token': token_data['token']
                 })
-                print(f"✅ UID #{res['index'] + 1} {uid} - टोकन जेनरेट हुआ ({region})")
+                print(f"✅ UID #{res['index'] + 1} {account['uid']} - टोकन जेनरेट हुआ ({region})")
             else:
                 # जो अकाउंट फ़ेल हो गए उन्हें लिस्ट में जोड़ें
-                uid = res['account'].get('uid') or res['account'].get('Uid') or res['account'].get('account_uid', 'N/A')
-                failed_accounts.append(uid)
-                print(f"❌ UID #{res['index'] + 1} {uid} - टोकन जेनरेट नहीं हो सका।")
+                failed_accounts.append(res['account']['uid'])
+                print(f"❌ UID #{res['index'] + 1} {res['account']['uid']} - टोकन जेनरेट नहीं हो सका।")
 
     # परिणामी टोकन को फ़ाइलों में सेव करें
     for region, tokens in result.items():
