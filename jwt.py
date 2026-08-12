@@ -7,9 +7,9 @@ import httpx
 # API का URL यहाँ डालें
 API_URL = "https://star-jwt-api1.lovable.app/api/public/token" 
 # कितनी बार दोबारा कोशिश करनी है
-MAX_RETRIES = 3 
+MAX_RETRIES = 2 
 # हर दोबारा कोशिश के बीच कितना इंतज़ार करना है (सेकंड में)
-RETRY_DELAY = 1 
+RETRY_DELAY = 2 
 
 # --- Token Generation Logic ---
 
@@ -17,7 +17,7 @@ async def generate_single_token(client, uid: str, password: str):
     """API से एक टोकन जेनरेट करता है."""
     try:
         url = f"{API_URL}?uid={uid}&password={password}"
-        resp = await client.get(url, timeout=50)
+        resp = await client.get(url, timeout=180)
         
         # अगर रिक्वेस्ट सफल रही तो JSON डेटा वापस भेजें
         if resp.status_code == 200:
@@ -114,7 +114,7 @@ async def main():
     # परिणामी टोकन को फ़ाइलों में सेव करें
     for region, tokens in result.items():
         if tokens:
-            filename = f'token_{region.lower()}_visit.json'
+            filename = f'token_{region.lower()}.json'
             with open(filename, 'w') as f:
                 json.dump(tokens, f, indent=2)
             print(f"💾 {len(tokens)} टोकन {filename} में सेव किए गए।")
